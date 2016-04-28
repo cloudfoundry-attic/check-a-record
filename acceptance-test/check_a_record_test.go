@@ -14,15 +14,17 @@ var _ = Describe("check-a-record", func() {
 		dnsServer.DeregisterAllRecords()
 	})
 
-	Context("when A records exist", func() {
+	Context("when A records exist alongside MX and AAAA records", func() {
 		It("exits 0 and prints only the A records", func() {
-			dnsServer.RegisterARecord("domain-with-a-and-mx", net.IP{1, 2, 3, 4})
-			dnsServer.RegisterMXRecord("domain-with-a-and-mx", "some-mail-server.", 0)
+			dnsServer.RegisterARecord("domain-with-multiple-records", net.ParseIP("1.2.3.4"))
+			dnsServer.RegisterAAAARecord("domain-with-multiple-records", net.ParseIP("2001:4860:0:2001::68"))
+			dnsServer.RegisterMXRecord("domain-with-multiple-records", "some-mail-server.", 0)
 
-			session := checkARecord([]string{"domain-with-a-and-mx"})
+			session := checkARecord([]string{"domain-with-multiple-records"})
 			Eventually(session, time.Minute).Should(gexec.Exit(0))
 
 			Expect(session.Out.Contents()).To(ContainSubstring("1.2.3.4"))
+			Expect(session.Out.Contents()).NotTo(ContainSubstring("2001:4860:0:2001::68"))
 			Expect(session.Out.Contents()).NotTo(ContainSubstring("some-mail-server."))
 		})
 	})

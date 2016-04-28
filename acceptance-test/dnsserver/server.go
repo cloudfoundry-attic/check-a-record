@@ -53,6 +53,13 @@ func (s Server) RegisterARecord(domainName string, ipAddress net.IP) {
 	})
 }
 
+func (s Server) RegisterAAAARecord(domainName string, ipAddress net.IP) {
+	s.registerRecord(domainName, &miekgdns.AAAA{
+		Hdr:  s.header(domainName, miekgdns.TypeAAAA),
+		AAAA: ipAddress,
+	})
+}
+
 func (s Server) RegisterMXRecord(domainName string, target string, preference uint16) {
 	s.registerRecord(domainName, &miekgdns.MX{
 		Hdr:        s.header(domainName, miekgdns.TypeMX),
