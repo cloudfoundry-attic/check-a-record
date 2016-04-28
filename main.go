@@ -10,12 +10,17 @@ func main() {
 	domain := os.Args[1]
 	ips, err := net.LookupIP(domain)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
+		fmt.Fprintf(os.Stderr, "No A records found (%s)\n", err.Error())
 		os.Exit(1)
 	}
 
 	filteredIPV4s := ipV4s(ips)
-	fmt.Printf("%+v", filteredIPV4s)
+	if len(filteredIPV4s) == 0 {
+		fmt.Fprintf(os.Stderr, "No A records found\n")
+		os.Exit(1)
+	}
+
+	printIPs(filteredIPV4s)
 }
 
 func ipV4s(ips []net.IP) []net.IP {
@@ -27,4 +32,10 @@ func ipV4s(ips []net.IP) []net.IP {
 	}
 
 	return ipV4s
+}
+
+func printIPs(ips []net.IP) {
+	for _, ip := range ips {
+		fmt.Println(ip)
+	}
 }
