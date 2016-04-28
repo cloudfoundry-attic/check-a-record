@@ -1,3 +1,6 @@
-#!/bin/bash
+#!/bin/bash -exu
 
-GO15VENDOREXPERIMENT=1 ginkgo -r .
+CONCOURSE_AIR_TRAFFIC_CONTROLLER=${1}
+ROOT_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/.. && pwd )"
+
+fly -t "${CONCOURSE_AIR_TRAFFIC_CONTROLLER}" execute -c "${ROOT_DIRECTORY}/scripts/ci/test.yml" --input check-a-record=.

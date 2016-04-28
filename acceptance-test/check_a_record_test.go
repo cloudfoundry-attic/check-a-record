@@ -4,55 +4,47 @@ import (
 	"net"
 	"time"
 
-	"github.com/cloudfoundry-incubator/check-a-record/acceptance-test/dnsserver"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
 )
 
 var _ = Describe("check-a-record", func() {
-	var server dnsserver.Server
-
-	BeforeEach(func() {
-		server = dnsserver.NewServer()
-		server.Start()
-	})
-
 	AfterEach(func() {
-		server.Stop()
+		dnsServer.DeregisterAllRecords()
 	})
 
 	Context("when A records exist", func() {
 		It("exits 0 and prints only the A records", func() {
-			server.RegisterCNAMERecord("some-domain", "some-cname.")
-			server.RegisterARecord("some-domain", net.IP{1, 2, 3, 4})
+			dnsServer.RegisterARecord("domain-with-a-and-mx", net.IP{1, 2, 3, 4})
+			dnsServer.RegisterMXRecord("domain-with-a-and-mx", "some-mail-server.", 0)
 
-			session := checkARecord([]string{"some-domain", server.URL()})
+			session := checkARecord([]string{"domain-with-a-and-mx"})
 			Eventually(session, time.Minute).Should(gexec.Exit(0))
 
 			Expect(session.Out.Contents()).To(ContainSubstring("1.2.3.4"))
-			Expect(session.Out.Contents()).NotTo(ContainSubstring("some-cname."))
+			Expect(session.Out.Contents()).NotTo(ContainSubstring("some-mail-server."))
 		})
 	})
 
 	Context("when no A records exist", func() {
 		It("exits 1 and prints an error", func() {
-			server.RegisterCNAMERecord("some-domain", "some-cname.")
-			server.RegisterCNAMERecord("some-domain", "another-cname.")
+			dnsServer.RegisterMXRecord("domain-with-two-mx-records", "some-mail-server.", 0)
+			dnsServer.RegisterMXRecord("domain-with-two-mx-records", "another-mail-server.", 1)
 
-			session := checkARecord([]string{"some-domain", server.URL()})
+			session := checkARecord([]string{"domain-with-two-mx-records"})
 			Eventually(session, time.Minute).Should(gexec.Exit(1))
 
-			Expect(session.Err.Contents()).To(ContainSubstring("No A records exist for some-domain"))
+			Expect(session.Err.Contents()).To(ContainSubstring("lookup domain-with-two-mx-records on 127.0.0.1:53: no such host"))
 		})
 	})
 
-	Context("failure cases", func() {
-		It("exits 1 and prints an error when dns server doesn't exist", func() {
-			session := checkARecord([]string{"some-domain", "127.0.0.1:9999"})
+	Context("when the domain does not exist at all", func() {
+		It("exits 1 and prints an error", func() {
+			session := checkARecord([]string{"nonexistent-domain"})
 			Eventually(session, time.Minute).Should(gexec.Exit(1))
 
-			Expect(session.Err.Contents()).To(ContainSubstring("read: connection refused"))
+			Expect(session.Err.Contents()).To(ContainSubstring("lookup nonexistent-domain on 127.0.0.1:53: no such host"))
 		})
 	})
 })

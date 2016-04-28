@@ -1,0 +1,10 @@
+---
+platform: linux
+
+image: docker:///cfinfrastructure/deployment
+
+inputs:
+  - name: check-a-record
+
+run:
+  path: check-a-record/scripts/ci/test

@@ -3,12 +3,13 @@ package dnsserver
 import (
 	"fmt"
 	"net"
+	"os"
 
 	miekgdns "github.com/miekg/dns"
 )
 
 type Server struct {
-	server  miekgdns.Server
+	server  *miekgdns.Server
 	records map[string][]miekgdns.RR
 }
 
@@ -17,8 +18,8 @@ func NewServer() Server {
 		records: make(map[string][]miekgdns.RR),
 	}
 
-	server.server = miekgdns.Server{
-		Addr:    ":8053",
+	server.server = &miekgdns.Server{
+		Addr:    ":53",
 		Net:     "udp",
 		Handler: miekgdns.HandlerFunc(server.handleDNSRequest),
 	}
@@ -26,24 +27,23 @@ func NewServer() Server {
 	return server
 }
 
-func (s *Server) Start() error {
+func (s Server) Start() {
 	go func() {
 		err := s.server.ListenAndServe()
 
 		if err != nil {
-			fmt.Println(err.Error())
+			fmt.Fprintln(os.Stderr, "%s\n", err.Error())
 		}
 	}()
-
-	return nil
 }
 
-func (s *Server) Stop() {
-	s.server.Shutdown()
+func (s Server) Stop() error {
+	err := s.server.Shutdown()
+	return err
 }
 
 func (Server) URL() string {
-	return "127.0.0.1:8053"
+	return "127.0.0.1:53"
 }
 
 func (s Server) RegisterARecord(domainName string, ipAddress net.IP) {
@@ -53,17 +53,21 @@ func (s Server) RegisterARecord(domainName string, ipAddress net.IP) {
 	})
 }
 
-func (s Server) RegisterCNAMERecord(domainName string, target string) {
-	s.registerRecord(domainName, &miekgdns.CNAME{
-		Hdr:    s.header(domainName, miekgdns.TypeCNAME),
-		Target: target,
+func (s Server) RegisterMXRecord(domainName string, target string, preference uint16) {
+	s.registerRecord(domainName, &miekgdns.MX{
+		Hdr:        s.header(domainName, miekgdns.TypeMX),
+		Mx:         target,
+		Preference: preference,
 	})
+}
+
+func (s Server) DeregisterAllRecords() {
+	s.records = make(map[string][]miekgdns.RR)
 }
 
 func (s Server) handleDNSRequest(responseWriter miekgdns.ResponseWriter, requestMessage *miekgdns.Msg) {
 	responseMessage := new(miekgdns.Msg)
 	responseMessage.SetReply(requestMessage)
-
 	resourceRecords, recordExists := s.records[requestMessage.Question[0].Name]
 
 	if recordExists {
