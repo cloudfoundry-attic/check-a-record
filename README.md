@@ -6,6 +6,8 @@ If at least one A record exists for a given host, check-a-record will print the 
 host resolves to and exit with return code 0. Otherwise, check-a-record prints an error
 message and exits with return code 1.
 
+* [CI](https://mega.ci.cf-app.com/pipelines/check-a-record)
+
 ## Dependencies
 
 The following should be installed on your local machine
