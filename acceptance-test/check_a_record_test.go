@@ -14,6 +14,14 @@ var _ = Describe("check-a-record", func() {
 		dnsServer.DeregisterAllRecords()
 	})
 
+	Context("when no domain is provided", func() {
+		It("prints usage and exits 1", func() {
+			session := checkARecord([]string{})
+			Eventually(session, time.Minute).Should(gexec.Exit(1))
+			Expect(string(session.Err.Contents())).To(Equal("usage: check-a-record <host>\n"))
+		})
+	})
+
 	Context("when A records exist alongside MX and AAAA records", func() {
 		It("exits 0 and prints only the A records", func() {
 			dnsServer.RegisterARecord("domain-with-multiple-records", net.ParseIP("1.2.3.4"))

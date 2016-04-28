@@ -7,8 +7,13 @@ import (
 )
 
 func main() {
-	domain := os.Args[1]
-	ips, err := net.LookupIP(domain)
+	if len(os.Args) != 2 {
+		fmt.Fprintln(os.Stderr, "usage: check-a-record <host>")
+		os.Exit(1)
+	}
+
+	host := os.Args[1]
+	ips, err := net.LookupIP(host)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "No A records found (%s)\n", err.Error())
 		os.Exit(1)
