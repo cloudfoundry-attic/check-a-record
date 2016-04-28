@@ -7,4 +7,4 @@ inputs:
   - name: check-a-record
 
 run:
-  path: check-a-record/scripts/ci/test
+  path: check-a-record/ci/test

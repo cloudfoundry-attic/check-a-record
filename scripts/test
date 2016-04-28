@@ -1,6 +1,10 @@
 #!/bin/bash -exu
 
 CONCOURSE_AIR_TRAFFIC_CONTROLLER=${1}
-ROOT_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/.. && pwd )"
+CHECK_A_RECORD_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/.. && pwd )"
 
-fly -t "${CONCOURSE_AIR_TRAFFIC_CONTROLLER}" execute -c "${ROOT_DIRECTORY}/scripts/ci/test.yml" --input check-a-record=.
+fly \
+  -t "${CONCOURSE_AIR_TRAFFIC_CONTROLLER}" \
+  execute \
+  -c "${CHECK_A_RECORD_DIRECTORY}/ci/test.yml" \
+  --input check-a-record="${CHECK_A_RECORD_DIRECTORY}"
