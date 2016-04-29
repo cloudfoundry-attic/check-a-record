@@ -1,10 +1,9 @@
 #!/bin/bash -exu
 
-CONCOURSE_AIR_TRAFFIC_CONTROLLER=${1}
 CHECK_A_RECORD_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/.. && pwd )"
 
-fly \
-  -t "${CONCOURSE_AIR_TRAFFIC_CONTROLLER}" \
-  execute \
-  -c "${CHECK_A_RECORD_DIRECTORY}/ci/test.yml" \
-  --input check-a-record="${CHECK_A_RECORD_DIRECTORY}"
+docker run \
+  --dns 127.0.0.1 \
+  -v "${CHECK_A_RECORD_DIRECTORY}":/check-a-record \
+  cfinfrastructure/deployment \
+  /check-a-record/ci/test

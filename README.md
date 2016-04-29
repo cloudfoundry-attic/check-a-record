@@ -35,11 +35,9 @@ usage: check-a-record <host>
 
 ## Running Tests
 
-The acceptance tests must be run inside of a docker container to allow a DNS server to be
-run on port 53. To achieve this we run the tests in a concourse job, even during local
-development. To run the tests:
+The acceptance tests run inside of a docker container to allow a DNS server to be run on port
+53. To run the tests:
 
 ```
-fly -t <concourse target> login
-./scripts/test <concourse target>
+./scripts/test
 ```
