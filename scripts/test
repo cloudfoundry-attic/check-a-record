@@ -6,4 +6,4 @@ docker run \
   --dns 127.0.0.1 \
   -v "${CHECK_A_RECORD_DIRECTORY}":/check-a-record \
   cfinfrastructure/deployment \
-  /check-a-record/ci/test
+  /check-a-record/scripts/ci/test

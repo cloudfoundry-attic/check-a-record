@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CONTAINER_ROOT_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/../.. && pwd )"
+CONTAINER_ROOT_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/../../.. && pwd )"
 
 mkdir -p "${GOPATH}/src/github.com/cloudfoundry-incubator"
 
