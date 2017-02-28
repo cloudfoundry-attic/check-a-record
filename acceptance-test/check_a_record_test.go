@@ -63,7 +63,7 @@ var _ = Describe("check-a-record", func() {
 			session := checkARecord([]string{"nonexistent-domain"})
 			Eventually(session, time.Minute).Should(gexec.Exit(1))
 
-			Expect(string(session.Err.Contents())).To(Equal("No A records found (lookup nonexistent-domain on 127.0.0.1:53: no such host)\n"))
+			Expect(string(session.Err.Contents())).To(Equal("No A records found (lookup nonexistent-domain on 127.0.0.1:53: lame referral)\n"))
 		})
 	})
 })
