@@ -36,6 +36,27 @@ var _ = Describe("check-a-record", func() {
 		})
 	})
 
+	Context("when the domain provided includes a protocol", func() {
+		It("exits 0 and prints only the A records", func() {
+			dnsServer.RegisterARecord("domain-with-record", net.ParseIP("1.2.3.4"))
+
+			session := checkARecord([]string{"http://domain-with-record"})
+			Eventually(session, time.Minute).Should(gexec.Exit(0))
+
+			Expect(string(session.Out.Contents())).To(Equal("1.2.3.4\n"))
+		})
+
+		Context("when the domain cannot be parsed", func() {
+			It("exits 1 and prints an error", func() {
+				session := checkARecord([]string{"%%%"})
+				Eventually(session, time.Minute).Should(gexec.Exit(1))
+
+				Expect(string(session.Out.Contents())).To(Equal(""))
+				Expect(string(session.Err.Contents())).To(Equal("Invalid host (parse %%%: invalid URL escape \"%%%\")\n"))
+			})
+		})
+	})
+
 	Context("when no A records exist", func() {
 		It("exits 1 and prints an error when there are AAAA records", func() {
 			dnsServer.RegisterAAAARecord("domain-with-aaaa-records", net.ParseIP("2001:4860:0:2001::68"))

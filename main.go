@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net"
+	"net/url"
 	"os"
 )
 
@@ -13,6 +14,16 @@ func main() {
 	}
 
 	host := os.Args[1]
+	u, err := url.Parse(host)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Invalid host (%s)\n", err.Error())
+		os.Exit(1)
+	}
+
+	if u.Hostname() != "" {
+		host = u.Hostname()
+	}
+
 	ips, err := net.LookupIP(host)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "No A records found (%s)\n", err.Error())
