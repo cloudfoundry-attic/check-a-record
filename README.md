@@ -11,7 +11,7 @@ message and exits with return code 1.
 ## Dependencies
 
 The following should be installed on your local machine
-- Golang (>= 1.5)
+- Golang (>= 1.8)
 
 If using homebrew, these can be installed with:
 
