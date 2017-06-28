@@ -32,7 +32,7 @@ func (s Server) Start() {
 		err := s.server.ListenAndServe()
 
 		if err != nil {
-			fmt.Fprintln(os.Stderr, "%s\n", err.Error())
+			fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 		}
 	}()
 }
